@@ -157,13 +157,15 @@ class Game extends React.Component {
             history: [
                 { squares: Array(9).fill(null) }
             ],
+            // indicates which step of the game is being shown
+            stepNumber: 0,
             xIsNext: true,
         }
     }
 
 
     handleClick = i => {
-        const history = this.state.history
+        const history = this.state.history.slice(0, this.state.stepNumber + 1)
         const current = history[history.length - 1]
         const squares = current.squares.slice()
         
@@ -175,15 +177,41 @@ class Game extends React.Component {
         
         this.setState({
             history: history.concat([ { squares: squares } ]),
+            stepNumber: history.length,
             xIsNext: !this.state.xIsNext,
+        })
+    }
+
+
+    jumpTo(step) {
+        this.setState({
+            stepNumber: step,
+            xIsNext: (step % 2) === 0,
         })
     }
 
 
     render() {
         const history = this.state.history
-        const current = history[history.length - 1]
+        const current = history[this.state.stepNumber]
         const winner = calculateWinner(current.squares)
+
+        // Use game-state history to create an array of <li> containing
+        // <button>s, where each <button> causes the associated game-state
+        // from history to be displayed
+        const moves = history.map((step, move) => {
+            const desc = move ?
+              'Go to move #' + move :
+              'Go to game start'
+            const buttonStyle = move === this.state.stepNumber ?
+                { fontWeight:'bold' } :
+                {}
+            return (
+              <li key={move}>
+                <button style={buttonStyle} onClick={() => this.jumpTo(move)}>{desc}</button>
+              </li>
+            )
+          })
 
         let status
         if (winner)
@@ -201,7 +229,7 @@ class Game extends React.Component {
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
-                    <ol>{/* TODO */}</ol>
+                    <ol>{moves}</ol>
                 </div>
             </div>
         )
