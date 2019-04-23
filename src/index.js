@@ -63,16 +63,23 @@ class Board extends React.Component {
 
     
     // When a <Square> is clicked, updates the state of the game by setting
-    // the value in state for the <Square> to 'X' or 'O'
+    // the value in state for the <Square> to 'X' or 'O', and updating the
+    // next turn indicator
     handleClick = i => {
+        
+        // Ignore click if the square has already been claimed, or
+        // the game has been won
+        if (this.state.squares[i] || calculateWinner(this.state.squares)) {
+            return
+        }
+
         this.setState(prevState => {
             prevState.squares[i] = (prevState.xIsNext) ? 'X' : 'O'
-            return { 
+            return {
                 squares: prevState.squares,
                 xIsNext: !prevState.xIsNext
-             }
+            }
         })
-
     }
 
     
